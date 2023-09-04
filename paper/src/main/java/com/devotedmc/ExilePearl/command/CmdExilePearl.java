@@ -44,6 +44,7 @@ public class CmdExilePearl extends PearlCommand {
 		addSubCommand(new CmdShowAllPearls(plugin));
 		addSubCommand(new CmdSummonConfirm(plugin));
 		addSubCommand(new CmdUpgrade(plugin));
+		addSubCommand(new CmdProbe(plugin));
 
 		// Admin commands
 		addSubCommand(new CmdConfig(plugin));
@@ -51,12 +52,12 @@ public class CmdExilePearl extends PearlCommand {
 		addSubCommand(new CmdAdminExileAny(plugin));
 		addSubCommand(new CmdAdminSetDate(plugin));
 		addSubCommand(new CmdAdminFreeAny(plugin));
-		addSubCommand(new CmdAdminSetHealth(plugin));
 		addSubCommand(new CmdAdminSetType(plugin));
 		addSubCommand(new CmdAdminSetKiller(plugin));
 		addSubCommand(new CmdAdminCheckExiled(plugin));
 		addSubCommand(new CmdAdminListExiled(plugin));
 		addSubCommand(new CmdAdminReload(plugin));
+		
 
 		instance = this;
 	}

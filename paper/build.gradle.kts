@@ -14,5 +14,7 @@ dependencies {
 	compileOnly("net.civmc.banstick:banstick-paper:2.0.1:dev")
 	compileOnly("net.civmc.randomspawn:randomspawn-paper:3.0.2:dev")
 
+	implementation(files("/home/citylion/IdeaLibs/scarcity-1.0-SNAPSHOT.jar"))
+
 	compileOnly("com.github.DieReicheErethons:Brewery:3.1")
 }

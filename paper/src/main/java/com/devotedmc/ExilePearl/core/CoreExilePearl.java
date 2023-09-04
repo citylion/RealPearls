@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
  * Instance of a player who is imprisoned in an exile pearl
  * @author Gordon
  */
-final class CoreExilePearl implements ExilePearl {
+final class CoreExilePearl implements ExilePearl{
 	private static final int HOLDER_COUNT = 5;
 	private static final int DEFAULT_HEALTH = 10;
 
@@ -53,14 +53,17 @@ final class CoreExilePearl implements ExilePearl {
 
 	private PearlType pearlType;
 	private Date pearledOn;
+
+	private Date freeon;
+
 	private Date lastSeen;
 	private LinkedBlockingDeque<PearlHolder> holders;
 	private boolean freedOffline;
-	private int health;
 	private boolean storageEnabled;
 	private boolean summoned;
 	private Location returnLoc;
-	private long decayTimeoutMs;
+
+
 
 	/**
 	 * Creates a new prison pearl instance
@@ -72,6 +75,7 @@ final class CoreExilePearl implements ExilePearl {
 			final PearlUpdateStorage storage,
 			final UUID playerId,
 			final UUID killedBy,
+			final Date freeon,
 			final int pearlId,
 			final PearlHolder holder,
 			final PearlType defaultPearlType,
@@ -80,6 +84,7 @@ final class CoreExilePearl implements ExilePearl {
 		Preconditions.checkNotNull(pearlApi, "pearlApi");
 		Preconditions.checkNotNull(storage, "storage");
 		Preconditions.checkNotNull(playerId, "playerId");
+		Preconditions.checkNotNull(freeon,"freeOn");
 		Preconditions.checkNotNull(killedBy, "killedBy");
 		Preconditions.checkNotNull(holder, "holder");
 		Preconditions.checkNotNull(defaultPearlType, "defaultPearlType");
@@ -90,13 +95,12 @@ final class CoreExilePearl implements ExilePearl {
 		this.pearlId = pearlId;
 		this.killedBy = killedBy;
 		this.pearledOn = new Date();
+		this.freeon = freeon;
 		this.lastSeen = new Date();
 		this.pearlType = defaultPearlType;
 		this.holders = new LinkedBlockingDeque<PearlHolder>();
 		this.holders.add(holder);
-		this.health = DEFAULT_HEALTH;
 		this.storageEnabled = false;
-		this.decayTimeoutMs = (long)decayTimeoutMin * 60L * 1000L;
 	}
 
 
@@ -104,6 +108,8 @@ final class CoreExilePearl implements ExilePearl {
 	public UUID getPlayerId() {
 		return playerId;
 	}
+
+	public Date getFreeOn(){ return freeon; }
 
 
 	@Override
@@ -151,6 +157,9 @@ final class CoreExilePearl implements ExilePearl {
 			storage.updatePearledOnDate(this);
 		}
 	}
+
+
+
 
 
 	@Override
@@ -227,49 +236,8 @@ final class CoreExilePearl implements ExilePearl {
 		}
 	}
 
-    
-    /**
-     * Gets the pearl health value
-     * @return The strength value
-     */
-	@Override
-    public Integer getHealthPercent() {
-		return (int)Math.round(((double)health / pearlApi.getPearlConfig().getPearlHealthMaxValue()) * 100);
-    }
 
-    
-    /**
-     * Gets the pearl health value
-     * @return The strength value
-     */
-	@Override
-    public int getHealth() {
-    	return this.health;
-    }
-    
-    
-    /**
-     * Sets the pearl heatlh value
-     * @param health The health value
-     */
-	@Override
-    public void setHealth(int health) {
-		checkPearlValid();
 
-    	if (health < 0) {
-    		health = 0;
-    	}
-    	
-    	if (health > pearlApi.getPearlConfig().getPearlHealthMaxValue()) {
-    		health = pearlApi.getPearlConfig().getPearlHealthMaxValue();
-    	}
-    	
-    	this.health = health;
-    	
-		if(storageEnabled) {
-			storage.updatePearlHealth(this);
-		}
-    }
 
 	/**
 	 * Gets the pearl location
@@ -454,6 +422,7 @@ final class CoreExilePearl implements ExilePearl {
 		}
 	}
 
+	/*
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 31) // two randomly chosen prime numbers
@@ -486,7 +455,7 @@ final class CoreExilePearl implements ExilePearl {
 				.append(freedOffline, other.freedOffline)
 				.isEquals();
     }
-
+*/
 
 	@Override
 	public void performBroadcast() {
@@ -540,11 +509,6 @@ final class CoreExilePearl implements ExilePearl {
 	}
 
 	@Override
-	public boolean isActive() {
-		return decayTimeoutMs == 0L || (new Date()).getTime() - getLastOnline().getTime() < decayTimeoutMs;
-	}
-
-	@Override
 	public boolean isSummoned() {
 		return summoned;
 	}
@@ -572,16 +536,4 @@ final class CoreExilePearl implements ExilePearl {
 		}
 	}
 
-
-	@Override
-	public double getLongTimeMultiplier() {
-		int timer = pearlApi.getPearlConfig().pearlCostMultiplicationTimerDays();
-		if (timer <= 0) {
-			return 1.0;
-		}
-    
-	  long sincePearled = System.currentTimeMillis() - getPearledOn().getTime();
-		double days = TimeUnit.MILLISECONDS.toDays(sincePearled);
-		return Math.max(1.0, Math.pow(1.25, (days / timer)));
-	}
 }

@@ -84,14 +84,6 @@ class AsyncStorageWriter implements PluginStorage, Runnable {
 	}
 
 	@Override
-	public void updatePearlHealth(ExilePearl pearl) {
-		Preconditions.checkNotNull(pearl, "pearl");
-		checkRunning();
-
-		queue.add(new AsyncPearlRecord(pearl, WriteType.UPDATE_HEALTH));
-	}
-
-	@Override
 	public void updatePearlFreedOffline(ExilePearl pearl) {
 		Preconditions.checkNotNull(pearl, "pearl");
 		checkRunning();
@@ -184,7 +176,7 @@ class AsyncStorageWriter implements PluginStorage, Runnable {
 			break;
 
 		case UPDATE_HEALTH:
-			storage.updatePearlHealth(record.getPearl());
+			//storage.updatePearlHealth(record.getPearl());
 			break;
 
 		case UPDATE_FREED_OFFLINE:

@@ -32,9 +32,6 @@ class RamStorage implements PluginStorage {
 	public void updatePearlLocation(ExilePearl pearl) { }
 
 	@Override
-	public void updatePearlHealth(ExilePearl pearl) { }
-
-	@Override
 	public void updatePearlFreedOffline(ExilePearl pearl) { }
 
 	@Override

@@ -43,7 +43,7 @@ class MySqlStorage implements PluginStorage {
 			"x int not null," +
 			"y int not null," +
 			"z int not null," +
-			"health int not null," +
+			"freeon long not null," +
 			"pearled_on long not null," +
 			"freed_offline bool," +
 			"PRIMARY KEY (uid));";
@@ -231,8 +231,11 @@ class MySqlStorage implements PluginStorage {
 							.append("x", doc.getInteger("x"))
 							.append("y", doc.getInteger("y"))
 							.append("z", doc.getInteger("z")));
+					doc.append("freeon", Long.parseLong(doc.getString("freeon")));
 					doc.append("type", doc.getInteger("ptype", 0));
 					doc.append("summoned", doc.getBoolean("summoned"));
+
+					//Bukkit.getLogger().severe(doc.toString());
 
 					pearls.add(pearlFactory.createExilePearl(doc.getUUID("uid"), doc));
 				} catch (Exception ex) {
@@ -265,7 +268,7 @@ class MySqlStorage implements PluginStorage {
 			ps.setInt(6, l.getBlockX());
 			ps.setInt(7, l.getBlockY());
 			ps.setInt(8, l.getBlockZ());
-			ps.setInt(9, pearl.getHealth());
+			ps.setLong(9, pearl.getFreeOn().getTime());
 			ps.setLong(10, pearl.getPearledOn().getTime());
 			ps.setBoolean(11, pearl.getFreedOffline());
 			ps.setLong(12, pearl.getLastOnline().getTime());
@@ -309,22 +312,6 @@ class MySqlStorage implements PluginStorage {
 		}
 		catch (SQLException ex) {
 			logFailedPearlOperation(ex, pearl, "update 'location'");
-		}
-	}
-
-	@Override
-	public void updatePearlHealth(ExilePearl pearl) {
-		Preconditions.checkNotNull(pearl, "pearl");
-
-		try (Connection connection = db.getConnection();
-				PreparedStatement ps = connection.prepareStatement("UPDATE exilepearls SET health = ? WHERE uid = ?"); ) {
-
-			ps.setInt(1, pearl.getHealth());
-			ps.setString(2, pearl.getPlayerId().toString());
-			ps.executeUpdate();
-		}
-		catch (SQLException ex) {
-			logFailedPearlOperation(ex, pearl, "update 'health'");
 		}
 	}
 
@@ -500,6 +487,7 @@ class MySqlStorage implements PluginStorage {
 						int x = set.getInt("x");
 						int y = set.getInt("y");
 						int z = set.getInt("z");
+						long freeon = set.getLong("freeon");
 						int pearlId = set.getInt("uq");
 						UUID killerId = null;
 						String killerUUIDAsString = set.getString("killer");
@@ -520,6 +508,7 @@ class MySqlStorage implements PluginStorage {
 								.append("pearl_id", pearlId)
 								.append("location", loc)
 								.append("pearled_on", pearledOn)
+								.append("freeon", freeon)
 								.append("last_seen", pearledOn); // TODO: overloading for now.
 
 						ExilePearl pearl = pearlFactory.createdMigratedPearl(playerId, doc);

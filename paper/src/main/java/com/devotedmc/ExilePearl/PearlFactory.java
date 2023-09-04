@@ -11,14 +11,6 @@ import org.bukkit.entity.Player;
  */
 public interface PearlFactory {
 
-	/**
-	 * Creates an exile pearl instance
-	 * @param uid The prisoner UUID
-	 * @param killedBy The killing player
-	 * @param pearlId The pearl ID
-	 * @return The new exile pearl instance
-	 */
-	ExilePearl createExilePearl(UUID uid, Player killedBy, int pearlId);
 
 	/**
 	 * Creates an exile pearl instance

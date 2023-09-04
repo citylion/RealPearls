@@ -25,6 +25,7 @@ final class PearlDecayTask extends ExilePearlTask {
 		if (enabled) {
 			pearlApi.log("Pearl decay will run every %d minutes.", interval);
 		}
+
 	}
 
 

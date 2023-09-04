@@ -1,15 +1,6 @@
 package com.devotedmc.ExilePearl.core;
 
-import com.devotedmc.ExilePearl.BorderHandler;
-import com.devotedmc.ExilePearl.BrewHandler;
-import com.devotedmc.ExilePearl.DamageLogger;
-import com.devotedmc.ExilePearl.ExilePearl;
-import com.devotedmc.ExilePearl.ExilePearlApi;
-import com.devotedmc.ExilePearl.LoreProvider;
-import com.devotedmc.ExilePearl.PearlFactory;
-import com.devotedmc.ExilePearl.PearlManager;
-import com.devotedmc.ExilePearl.PearlType;
-import com.devotedmc.ExilePearl.SuicideHandler;
+import com.devotedmc.ExilePearl.*;
 import com.devotedmc.ExilePearl.config.Document;
 import com.devotedmc.ExilePearl.config.PearlConfig;
 import com.devotedmc.ExilePearl.holder.BlockHolder;
@@ -48,6 +39,21 @@ public final class CorePluginFactory implements PearlFactory {
 		this.pearlApi = plugin;
 	}
 
+
+	public Date getFreeDate(){
+
+
+		long now = System.currentTimeMillis();
+		long end = CitadelPVP.getTimeMapEnd();
+		long diff = end-now;
+		long scalar = 8;
+		long remaining = now + (diff/scalar);
+		Date whenfree = new Date(remaining);
+		Bukkit.getLogger().info("DATE FOR RELEASE IN SOME PEARL IS " + whenfree + " " + whenfree.getTime());
+		return whenfree;
+
+	}
+
 	@Override
 	public ExilePearl createExilePearl(UUID uid, Document doc) {
 		Preconditions.checkNotNull(uid, "uid");
@@ -57,25 +63,30 @@ public final class CorePluginFactory implements PearlFactory {
 			UUID killedBy = UUID.fromString(doc.getString("killer_id"));
 			int pearlId = doc.getInteger("pearl_id");
 			Location loc = doc.getLocation("location");
-			int health = doc.getInteger("health");
+			long freeon = doc.getLong("freeon");
+			Date freedate = new Date(freeon);
 			Date pearledOn = doc.getDate("pearled_on", new Date());
 			Date lastSeen = doc.getDate("last_seen", new Date());
 			boolean freedOffline = doc.getBoolean("freed_offline", false);
 			boolean summoned = doc.getBoolean("summoned", false);
 			Location returnLoc = doc.getLocation("returnLoc");
 
+
+
+
 			ExilePearl pearl = new CoreExilePearl(
 					pearlApi,
 					pearlApi.getStorageProvider().getStorage(),
 					uid,
 					killedBy,
+					freedate,
 					pearlId,
 					new BlockHolder(loc.getBlock()),
 					pearlApi.getPearlConfig().getDefaultPearlType(),
 					pearlApi.getPearlConfig().getPearlHealthDecayTimeout()
 			);
 			pearl.setPearlType(PearlType.valueOf(doc.getInteger("type", 0)));
-			pearl.setHealth(health);
+
 			pearl.setPearledOn(pearledOn);
 			pearl.setLastOnline(lastSeen);
 			pearl.setFreedOffline(freedOffline);
@@ -85,11 +96,12 @@ public final class CorePluginFactory implements PearlFactory {
 			return pearl;
 
 		} catch(Exception ex) {
-			pearlApi.log(Level.SEVERE, "Failed to create pearl for ID=%s, ", uid.toString(), doc);
+			pearlApi.log(Level.SEVERE, "Ln99 Failed to create pearl for ID=%s, ", uid.toString(), doc);
 			return null;
 		}
 	}
 
+	/*
 	@Override
 	public ExilePearl createExilePearl(UUID uid, Player killedBy, int pearlId) {
 		Preconditions.checkNotNull(uid, "uid");
@@ -107,7 +119,7 @@ public final class CorePluginFactory implements PearlFactory {
 		);
 		pearl.enableStorage();
 		return pearl;
-	}
+	}*/
 
 	@Override
 	public ExilePearl createExilePearl(UUID uid, UUID killedById, int pearlId, PearlHolder holder) {
@@ -120,6 +132,7 @@ public final class CorePluginFactory implements PearlFactory {
 				pearlApi.getStorageProvider().getStorage(),
 				uid,
 				killedById,
+				getFreeDate(),
 				pearlId,
 				holder,
 				pearlApi.getPearlConfig().getDefaultPearlType(),
@@ -134,7 +147,7 @@ public final class CorePluginFactory implements PearlFactory {
 		Preconditions.checkNotNull(uid, "uid");
 		Preconditions.checkNotNull(doc, "doc");
 
-		doc.append("health", pearlApi.getPearlConfig().getPearlHealthMaxValue() / 2); // set health to half max health
+		//doc.append("health", pearlApi.getPearlConfig().getPearlHealthMaxValue() / 2); // set health to half max health
 		return createExilePearl(uid, doc);
 	}
 

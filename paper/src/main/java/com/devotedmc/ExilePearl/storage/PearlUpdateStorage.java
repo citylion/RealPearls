@@ -11,12 +11,6 @@ public interface PearlUpdateStorage {
 	void updatePearlLocation(ExilePearl pearl);
 
 	/**
-	 * Updates the pearl health
-	 * @param pearl The pearl instance to update
-	 */
-	void updatePearlHealth(ExilePearl pearl);
-
-	/**
 	 * Updates the freed offline status
 	 * @param pearl The pearl instance to update
 	 */

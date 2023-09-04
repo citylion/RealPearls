@@ -101,23 +101,8 @@ public interface ExilePearl {
 	 */
 	void setHolder(Entity entity);
 
-    /**
-     * Gets the pearl health value
-     * @return The health value
-     */
-    int getHealth();
 
-    /**
-     * Gets the pearl health percent value
-     * @return The health percent value
-     */
-    Integer getHealthPercent();
-    
-    /**
-     * Sets the pearl health value
-     * @param health The health value
-     */
-    void setHealth(int health);
+	
     
     /**
      * Gets the location of the pearl
@@ -226,13 +211,6 @@ public interface ExilePearl {
 	void setLastOnline(Date online);
 
 	/**
-	 * Gets whether or not the pearl is active
-	 * If the player didn't login longer than pearls.decay_timeout_min then the pearl becomes inactive
-	 * @return true if the pearl is active
-	 */
-	boolean isActive();
-
-	/**
 	 * Gets whether or not the pearled player is summoned
 	 * This is always false for exiled players, summoning only works for upgraded PrisonPearls
 	 * @return true if the player is summoned
@@ -257,11 +235,6 @@ public interface ExilePearl {
 	 * @param loc The location
 	 */
 	void setReturnLocation(Location loc);
-	
-	/**
-	 * Gets the multiplier to apply to the amount of repair materials needed to repair the pearl 
-	 * based on how long the player has been imprisoned
-	 * @return Repair cost multiplier
-	 */
-	double getLongTimeMultiplier();
+
+	Date getFreeOn();
 }

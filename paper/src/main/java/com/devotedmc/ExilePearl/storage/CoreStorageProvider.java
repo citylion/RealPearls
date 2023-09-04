@@ -38,9 +38,7 @@ public class CoreStorageProvider implements StorageProvider {
 			pearlApi.log(Level.INFO, "Using MySQL storage.");
 		}
 		else {
-			File storageFile = new File("plugins/ExilePearl/pearls.yml");
-			storage = new AsyncStorageWriter(new FileStorage(storageFile, pearlFactory, pearlApi), pearlApi);
-			pearlApi.log(Level.INFO, "Using File storage.");
+			//FUCK!
 		}
 		return storage; 
 	}

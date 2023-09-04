@@ -7,11 +7,7 @@ import com.devotedmc.ExilePearl.holder.PearlHolder;
 import com.google.common.base.Preconditions;
 import com.programmerdan.minecraft.banstick.handler.BanHandler;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.bukkit.Location;
@@ -52,30 +48,37 @@ final class CoreLoreGenerator implements LoreProvider {
 	 * @return The pearl lore
 	 */
 	public List<String> generateLore(ExilePearl pearl) {
-		return generateLoreInternal(pearl, pearl.getHealth(), true);
+		return generateLoreInternal(pearl, true);
 	}
 
 	@Override
 	public List<String> generateLoreWithModifiedHealth(ExilePearl pearl, int healthValue) {
-		return generateLoreInternal(pearl, healthValue, true);
+		return generateLoreInternal(pearl, true);
 	}
 
 	@Override
 	public List<String> generateLoreWithModifiedType(ExilePearl pearl, PearlType type) {
-		List<String> lore = generateLoreInternal(pearl, pearl.getHealth(), true);
+		List<String> lore = generateLoreInternal(pearl, true);
 		lore.set(0, parse("<l>%s", type.getTitle()));
 		return lore;
 	}
 
-	private List<String> generateLoreInternal(ExilePearl pearl, int health, boolean addCommandHelp) {
+	private List<String> generateLoreInternal(ExilePearl pearl, boolean addCommandHelp) {
 		List<String> lore = new ArrayList<String>();
 
-		Integer healthPercent = Math.min(100, Math.max(0, (int)Math.round(((double)health / config.getPearlHealthMaxValue()) * 100)));
 
 		lore.add(parse("<l>%s", pearl.getItemName()));
 		lore.add(parse(PlayerNameStringFormat, pearl.getPlayerName(), Integer.toString(pearl.getPearlId(), 36).toUpperCase()));
-		lore.add(parse("<a>Health: <n>%s%%", healthPercent.toString()));
-		lore.add(parse("<a>Exiled on: <n>%s", dateFormat.format(pearl.getPearledOn())));
+		//lore.add(parse("<a>Free on: <n>%s%%", dateFormat.format(pearl.getFreeOn())));
+		//
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat("MMM dd, hh:mm a");
+		dateFormat.setTimeZone(TimeZone.getTimeZone("America/New_York")); // Set the time zone to Eastern Time (ET)
+
+		String formattedDate = dateFormat.format(pearl.getFreeOn());
+		lore.add(parse("<a>Free on: <n>%s ET", formattedDate));
+		//
+		lore.add(parse("<a>Exiled on: <n>%s ET", dateFormat.format(pearl.getPearledOn())));
 		lore.add(parse("<a>Killed by: <n>%s", pearl.getKillerName()));
 		if (ExilePearlPlugin.getApi().isBanStickEnabled() && BanHandler.isPlayerBanned(pearl.getPlayerId())) {
 			lore.add(parse("<b>Player is banned."));
@@ -90,7 +93,7 @@ final class CoreLoreGenerator implements LoreProvider {
 				}
 				int damagesPerHumanInterval = (config.getPearlHealthDecayHumanIntervalMin() / config.getPearlHealthDecayIntervalMin()) * config.getPearlHealthDecayAmount(); // intervals in a human interval * damage per
 				int repairsPerHumanInterval = damagesPerHumanInterval / amountPerItem;
-				lore.add(parse("<a>Cost per %s using %s:<n> %s", config.getPearlHealthDecayHumanInterval(), item, Integer.toString(repairsPerHumanInterval)));
+				//lore.add(parse("<a>Cost per %s using %s:<n> %s", config.getPearlHealthDecayHumanInterval(), item, Integer.toString(repairsPerHumanInterval)));
 			}
 		}
 
@@ -103,14 +106,11 @@ final class CoreLoreGenerator implements LoreProvider {
 					if(up.getStack().hasItemMeta() && up.getStack().getItemMeta().hasDisplayName()){
 						item = up.getStack().getItemMeta().getDisplayName();
 					}
-					lore.add(parse("<a>Upgrade cost:<n> %d %s", amount, item));
+					//lore.add(parse("<a>Upgrade cost:<n> %d %s", amount, item));
 				}
 			}
 		}
 
-		if (!pearl.isActive()) {
-			lore.add(parse("<h>Health Decay suspended due to Inactivity"));
-		}
 
 		if (addCommandHelp) {
 			// Generate some helpful commands
@@ -166,7 +166,7 @@ final class CoreLoreGenerator implements LoreProvider {
 
 	@Override
 	public List<String> generatePearlInfo(ExilePearl pearl) {
-		List<String> info = generateLoreInternal(pearl, pearl.getHealth(), false);
+		List<String> info = generateLoreInternal(pearl, false);
 		PearlHolder holder = pearl.getHolder();
 		Location l = holder.getLocation();
 		info.add(parse("<a>Held by: <n>%s [%d %d %d %s]", holder.getName(), l.getBlockX(), l.getBlockY(), l.getBlockZ(), l.getWorld().getName()));

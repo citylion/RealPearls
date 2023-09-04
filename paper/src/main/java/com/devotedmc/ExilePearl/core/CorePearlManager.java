@@ -7,7 +7,6 @@ import com.devotedmc.ExilePearl.PearlFreeReason;
 import com.devotedmc.ExilePearl.PearlManager;
 import com.devotedmc.ExilePearl.PearlType;
 import com.devotedmc.ExilePearl.StorageProvider;
-import com.devotedmc.ExilePearl.event.PearlDecayEvent;
 import com.devotedmc.ExilePearl.event.PearlReturnEvent;
 import com.devotedmc.ExilePearl.event.PearlSummonEvent;
 import com.devotedmc.ExilePearl.event.PlayerFreedEvent;
@@ -20,16 +19,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.programmerdan.minecraft.banstick.data.BSPlayer;
 import com.programmerdan.minecraft.banstick.handler.BanHandler;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
@@ -84,9 +76,13 @@ final class CorePearlManager implements PearlManager {
 	@Override
 	public void loadPearls() {
 		pearls.clear();
+		Collection c = storage.getStorage().loadAllPearls();
+		Bukkit.getLogger().severe(c.toString());
+
 		for (ExilePearl p : storage.getStorage().loadAllPearls()) {
 			pearls.put(p.getPlayerId(), p);
 		}
+
 		pearlApi.log("Loaded %d pearls from storage.", pearls.size());
 	}
 
@@ -151,8 +147,6 @@ final class CorePearlManager implements PearlManager {
 
 		pearls.put(pearl.getPlayerId(), pearl);
 		storage.getStorage().pearlInsert(pearl);
-
-		pearl.setHealth(pearlApi.getPearlConfig().getPearlHealthStartValue());
 
 		return pearl;
 	}
@@ -272,8 +266,7 @@ final class CorePearlManager implements PearlManager {
 		long startTime = System.currentTimeMillis();
 
 		final Collection<ExilePearl> pearls = getPearls();
-		final int decayAmount = pearlApi.getPearlConfig().getPearlHealthDecayAmount();
-		final int decayTimeout = pearlApi.getPearlConfig().getPearlHealthDecayTimeout();
+
 		final Set<String> disallowedWorlds = pearlApi.getPearlConfig().getDisallowedWorlds();
 		final HashSet<ExilePearl> pearlsToFree = new HashSet<>();
 
@@ -293,28 +286,14 @@ final class CorePearlManager implements PearlManager {
 				}
 			}
 
-			PearlHolder holder = pearl.getHolder();
-			if (decayTimeout > 0 && pearl.getPlayer() != null) {
-				// player is online now!
-				pearl.setLastOnline(new Date());
-			}
 
-			if (pearl.isActive()) {
-				PearlDecayEvent e = new PearlDecayEvent(pearl, decayAmount);
-				Bukkit.getPluginManager().callEvent(e);
-				if (!e.isCancelled() && e.getDamageAmount() > 0) {
-					int oldHealth = pearl.getHealth();
-					int newHealth = oldHealth - e.getDamageAmount();
-					pearl.setHealth(newHealth);
-					pearlApi.log("Set pearl for player %s health from %s to %s", pearl.getPlayerName(), oldHealth, newHealth);
-				}
-			}
 
-			if (pearl.getHealth() == 0) {
-				pearlApi.log("Freeing pearl for player %s because the health reached 0.", pearl.getPlayerName());
+			if(pearl.getFreeOn().getTime() < System.currentTimeMillis()) {
 				pearlsToFree.add(pearl);
 			}
 
+
+			PearlHolder holder = pearl.getHolder();
 			boolean permitLocationVerification = true;
 			if (holder != null && holder.isBlock()) {
 				if (disallowedWorlds.contains(holder.getLocation().getWorld().getName())) {
