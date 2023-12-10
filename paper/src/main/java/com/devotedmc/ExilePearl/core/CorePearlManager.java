@@ -278,16 +278,6 @@ final class CorePearlManager implements PearlManager {
 				continue;
 			}
 
-			//Skip decay if the pearled player is banned
-			if (pearlApi.isBanStickEnabled()) {
-				if (BanHandler.isPlayerBanned(pearl.getPlayerId())) {
-					pearlApi.log("Skipping decay for player %s since they are currently banned", pearl.getPlayerName());
-					continue;
-				}
-			}
-
-
-
 			if(pearl.getFreeOn().getTime() < System.currentTimeMillis()) {
 				pearlsToFree.add(pearl);
 			}

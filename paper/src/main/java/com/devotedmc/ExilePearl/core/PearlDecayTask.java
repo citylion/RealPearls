@@ -2,6 +2,7 @@ package com.devotedmc.ExilePearl.core;
 
 import com.devotedmc.ExilePearl.ExilePearlApi;
 import com.devotedmc.ExilePearl.config.PearlConfig;
+import org.bukkit.Bukkit;
 
 /**
  * Interval task that deducts strength from existing prison pearls
@@ -9,7 +10,7 @@ import com.devotedmc.ExilePearl.config.PearlConfig;
  */
 final class PearlDecayTask extends ExilePearlTask {
 
-	private int interval = 60;
+	private int interval = 1;
 
 	/**
 	 * Creates a new FactoryWorker instance
@@ -22,6 +23,7 @@ final class PearlDecayTask extends ExilePearlTask {
 	public void start() {
 
 		super.start();
+
 		if (enabled) {
 			pearlApi.log("Pearl decay will run every %d minutes.", interval);
 		}
@@ -43,6 +45,7 @@ final class PearlDecayTask extends ExilePearlTask {
 
 	@Override
 	public void run() {
+
 		if (!enabled) {
 			return;
 		}
@@ -51,6 +54,8 @@ final class PearlDecayTask extends ExilePearlTask {
 		pearlApi.getPearlManager().decayPearls();
 		long duration = System.currentTimeMillis() - start;
 		pearlApi.log("Pearl decay task took %dms", duration);
+
+
 	}
 
 	@Override

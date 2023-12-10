@@ -38,7 +38,6 @@ import java.util.concurrent.TimeUnit;
  */
 final class CoreExilePearl implements ExilePearl{
 	private static final int HOLDER_COUNT = 5;
-	private static final int DEFAULT_HEALTH = 10;
 
 	// The player provider instance
 	private final ExilePearlApi pearlApi;
@@ -78,8 +77,9 @@ final class CoreExilePearl implements ExilePearl{
 			final Date freeon,
 			final int pearlId,
 			final PearlHolder holder,
-			final PearlType defaultPearlType,
-			final int decayTimeoutMin)
+			final PearlType defaultPearlType
+			//,final int decayTimeoutMin
+	)
 	{
 		Preconditions.checkNotNull(pearlApi, "pearlApi");
 		Preconditions.checkNotNull(storage, "storage");

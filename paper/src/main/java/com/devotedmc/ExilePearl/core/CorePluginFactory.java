@@ -42,7 +42,6 @@ public final class CorePluginFactory implements PearlFactory {
 
 	public Date getFreeDate(){
 
-
 		long now = System.currentTimeMillis();
 		long end = CitadelPVP.getTimeMapEnd();
 		long diff = end-now;
@@ -82,8 +81,8 @@ public final class CorePluginFactory implements PearlFactory {
 					freedate,
 					pearlId,
 					new BlockHolder(loc.getBlock()),
-					pearlApi.getPearlConfig().getDefaultPearlType(),
-					pearlApi.getPearlConfig().getPearlHealthDecayTimeout()
+					pearlApi.getPearlConfig().getDefaultPearlType()
+					//,pearlApi.getPearlConfig().getPearlHealthDecayTimeout()
 			);
 			pearl.setPearlType(PearlType.valueOf(doc.getInteger("type", 0)));
 
@@ -135,8 +134,8 @@ public final class CorePluginFactory implements PearlFactory {
 				getFreeDate(),
 				pearlId,
 				holder,
-				pearlApi.getPearlConfig().getDefaultPearlType(),
-				pearlApi.getPearlConfig().getPearlHealthDecayTimeout()
+				pearlApi.getPearlConfig().getDefaultPearlType()//,
+				//pearlApi.getPearlConfig().getPearlHealthDecayTimeout()
 		);
 		pearl.enableStorage();
 		return pearl;
@@ -156,6 +155,7 @@ public final class CorePluginFactory implements PearlFactory {
 	}
 
 	public ExilePearlRunnable createPearlDecayWorker() {
+
 		return new PearlDecayTask(pearlApi);
 	}
 
